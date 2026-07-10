@@ -4,18 +4,18 @@ SteamCMD handler for truckersmp-cli main script.
 Licensed under MIT.
 """
 
+import codecs
 import io
 import logging
 import os
 import platform
+import pty
+import shutil
 import subprocess as subproc
 import sys
 import tarfile
 import urllib.request
 from zipfile import ZipFile
-import shutil
-import re
-import pty
 
 from .truckersmp import determine_game_branch
 from .utils import check_and_unpack_tar, check_steam_process, get_steamdir
@@ -36,7 +36,6 @@ class SteamCMD:
         self._path = path
         self._wine = wine
         self._env = env
-        self._login_re = re.compile(r"Waiting for client config.*")
 
     @staticmethod
     def download_steamcmd(dest, url):
@@ -136,10 +135,13 @@ class SteamCMD:
 
     def _create_lib_backup(self):
         """Create backup of steamlibvdf."""
-        lib = os.path.join(get_steamdir(), File.steamlibvdf_inner)
+        steamdir = get_steamdir()
+        if not steamdir:
+            return
+        lib = os.path.join(steamdir, File.steamlibvdf_inner)
         if not os.path.isfile(lib):
             return
-        
+
         bak = f"{lib}.truckersmp-cli.bak"
         try:
             shutil.copy2(lib, bak)
@@ -153,40 +155,52 @@ class SteamCMD:
         """Restore steamlibvdf and remove backup copy."""
         if not self._lib_backup:
             return
-        
+
         lib, bak = self._lib_backup
         try:
             shutil.copy2(bak, lib)
             logging.debug("Restored %s from %s", lib, bak)
         except OSError as ex:
             logging.warning("Failed to restore %s from %s: %s", lib, bak, ex)
-            
+
         try:
             os.remove(bak)
         except OSError:
             pass
-        
+
     def _try_restore_on_login(self, line):
         """Check for login pattern in line and restore backup if found."""
-        if not self._backup_restored and self._lib_backup and self._login_re.search(line):
+        if not self._backup_restored and self._search_pattern in line:
+            logging.debug("Found login pattern, restoring steamlibvdf")
             self._restore_lib_backup()
             self._backup_restored = True
-                
+
     def _run_interactive(self, cmdline):
         """Run SteamCMD interactively with PTY for immediate I/O."""
-        
+
+        self._decoder = codecs.getincrementaldecoder('utf-8')(errors='ignore')
+        self._search_buffer = ""
+        self._search_pattern = "Waiting for client config"
+        self._max_pattern_len = len(self._search_pattern)
+
         def master_read(fd):
             data = os.read(fd, 1024)
             if data:
-                text = data.decode('utf-8', errors='ignore')
-                self._try_restore_on_login(text)
+                self._search_buffer += self._decoder.decode(data)
+                self._try_restore_on_login(self._search_buffer)
+                if len(self._search_buffer) > self._max_pattern_len * 4:
+                    self._search_buffer = self._search_buffer[-self._max_pattern_len * 2:]
             return data
-        
+
         try:
             returncode = pty.spawn(cmdline, master_read=master_read)
             if returncode != 0:
+                if not self._backup_restored:
+                    self._restore_lib_backup()
                 sys.exit("SteamCMD exited abnormally")
         except OSError as ex:
+            if not self._backup_restored:
+                self._restore_lib_backup()
             sys.exit(f"Failed to start SteamCMD: {ex}")
 
     def run(self, args):

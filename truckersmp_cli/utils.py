@@ -828,15 +828,17 @@ def find_most_recent_steamdir(loginvdf_paths):
     Returns Steam directory path or None if no valid paths found.
     """
     timestamps = get_mtime(loginvdf_paths)
-    
-    if not timestamps or timestamps[-1] == 0:
+    if not timestamps:
         return None
-    
+
     max_timestamp = max(timestamps)
+    if max_timestamp == 0:
+        return None
+
     for i, path in enumerate(loginvdf_paths):
         if timestamps[i] == max_timestamp:
             return os.path.dirname(os.path.dirname(path))
-    
+
     return None
 
 
@@ -907,10 +909,10 @@ def get_steamdir():
     if Args.proton:
         if Args.flatpak_steam:
             return Dir.flatpak_steamdir
-        
+
         if Args.native_steam_dir != "auto":
             return Args.native_steam_dir
-        
+
         # find directory with most recently updated "loginusers.vdf" file
         return find_most_recent_steamdir(File.loginusers_paths)
     return Args.wine_steam_dir
