@@ -302,6 +302,11 @@ SteamCMD can use your saved credentials for convenience.
         help="don't use wine-discord-ipc-bridge for Discord Rich Presence",
         action="store_true"))
     store_actions.append(parser.add_argument(
+        "--do-not-backup-libraryfolders-vdf",
+        default=None,
+        help="don't back up the Steam library folders file before logging in with SteamCMD",
+        action="store_true"))
+    store_actions.append(parser.add_argument(
         "--version",
         help="""print version information and quit""",
         action="store_true"))

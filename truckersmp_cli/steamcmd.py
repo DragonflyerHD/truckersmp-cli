@@ -185,7 +185,7 @@ class SteamCMD:
 
         def master_read(fd):
             data = os.read(fd, 1024)
-            if data:
+            if data and not Args.do_not_backup_libraryfolders_vdf:
                 self._search_buffer += self._decoder.decode(data)
                 self._try_restore_on_login(self._search_buffer)
                 if len(self._search_buffer) > self._max_pattern_len * 4:
@@ -195,11 +195,11 @@ class SteamCMD:
         try:
             returncode = pty.spawn(cmdline, master_read=master_read)
             if returncode != 0:
-                if not self._backup_restored:
+                if not self._backup_restored and not Args.do_not_backup_libraryfolders_vdf:
                     self._restore_lib_backup()
                 sys.exit("SteamCMD exited abnormally")
         except OSError as ex:
-            if not self._backup_restored:
+            if not self._backup_restored and not Args.do_not_backup_libraryfolders_vdf:
                 self._restore_lib_backup()
             sys.exit(f"Failed to start SteamCMD: {ex}")
 
@@ -234,7 +234,7 @@ class SteamCMD:
             cmd_str += arg
 
         # create backup of Steam library folders
-        if Args.proton:
+        if Args.proton and not Args.do_not_backup_libraryfolders_vdf:
             self._create_lib_backup()
             self._backup_restored = False
 

@@ -278,6 +278,12 @@ class ConfigFile:
         # Discord Rich Presence
         self._configure_rich_presence(wants_rich_presence_cnt)
 
+        # whether to not back up the Steam library folders file
+        Args.do_not_backup_libraryfolders_vdf = self._configure_game_specific_setting_boolean(
+            Args.do_not_backup_libraryfolders_vdf, "do-not-backup-libraryfolders-vdf",
+            False, "Whether to not back up the Steam library folders file before logging in with SteamCMD",
+        )
+
         # rendering backend
         self._determine_rendering_backend()
 
