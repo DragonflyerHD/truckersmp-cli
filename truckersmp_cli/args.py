@@ -304,7 +304,8 @@ SteamCMD can use your saved credentials for convenience.
     store_actions.append(parser.add_argument(
         "--do-not-backup-libraryfolders-vdf",
         default=None,
-        help="don't back up the Steam library folders file before logging in with SteamCMD",
+        help="""don't back up the Steam library folders file before logging in with
+                SteamCMD""",
         action="store_true"))
     store_actions.append(parser.add_argument(
         "--version",

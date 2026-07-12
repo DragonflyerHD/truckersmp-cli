@@ -19,11 +19,13 @@ from zipfile import ZipFile
 
 from .truckersmp import determine_game_branch
 from .utils import check_and_unpack_tar, check_steam_process, get_steamdir
-from .variables import AppId, Args, Dir, URL, File
+from .variables import AppId, Args, Dir, File, URL
 
 
 class SteamCMD:
     """SteamCMD command."""
+
+    _LOGIN_PATTERN = "Waiting for client config"
 
     def __init__(self, path, wine=None, env=None):
         """
@@ -33,6 +35,10 @@ class SteamCMD:
         wine: Path to "wine" command (can be None when native SteamCMD is used)
         env: "env" argument for subprocess.Popen
         """
+        self._lib_backup = None
+        self._backup_restored = False
+        self._decoder = codecs.getincrementaldecoder('utf-8')(errors='ignore')
+        self._search_buffer = ""
         self._path = path
         self._wine = wine
         self._env = env
@@ -170,32 +176,30 @@ class SteamCMD:
 
     def _try_restore_on_login(self, line):
         """Check for login pattern in line and restore backup if found."""
-        if not self._backup_restored and self._search_pattern in line:
+        if not self._backup_restored and self._LOGIN_PATTERN in line:
             logging.debug("Found login pattern, restoring steamlibvdf")
             self._restore_lib_backup()
             self._backup_restored = True
 
     def _run_interactive(self, cmdline):
         """Run SteamCMD interactively with PTY for immediate I/O."""
-
-        self._decoder = codecs.getincrementaldecoder('utf-8')(errors='ignore')
         self._search_buffer = ""
-        self._search_pattern = "Waiting for client config"
-        self._max_pattern_len = len(self._search_pattern)
+        max_pattern_len = len(self._LOGIN_PATTERN)
 
         def master_read(fd):
             data = os.read(fd, 1024)
             if data and not Args.do_not_backup_libraryfolders_vdf:
                 self._search_buffer += self._decoder.decode(data)
                 self._try_restore_on_login(self._search_buffer)
-                if len(self._search_buffer) > self._max_pattern_len * 4:
-                    self._search_buffer = self._search_buffer[-self._max_pattern_len * 2:]
+                if len(self._search_buffer) > max_pattern_len * 4:
+                    self._search_buffer = self._search_buffer[-max_pattern_len * 2:]
             return data
 
         try:
             returncode = pty.spawn(cmdline, master_read=master_read)
             if returncode != 0:
-                if not self._backup_restored and not Args.do_not_backup_libraryfolders_vdf:
+                if (not self._backup_restored and not
+                Args.do_not_backup_libraryfolders_vdf):
                     self._restore_lib_backup()
                 sys.exit("SteamCMD exited abnormally")
         except OSError as ex:
