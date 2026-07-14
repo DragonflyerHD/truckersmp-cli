@@ -834,7 +834,7 @@ def find_most_recent_steamdir(loginvdf_paths):
     max_timestamp = max(timestamps)
     if max_timestamp == 0:
         logging.warning(
-            "Could not find steam installation in one of these directories:\n" +
+            "Could not find steam installation in one of these directories:\n%s",
             "\n".join(loginvdf_paths)
         )
         return None

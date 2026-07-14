@@ -198,8 +198,8 @@ class SteamCMD:
         try:
             returncode = pty.spawn(cmdline, master_read=master_read)
             if returncode != 0:
-                if (not self._backup_restored and not
-                Args.do_not_backup_libraryfolders_vdf):
+                if (not self._backup_restored
+                        and not Args.do_not_backup_libraryfolders_vdf):
                     self._restore_lib_backup()
                 sys.exit("SteamCMD exited abnormally")
         except OSError as ex:
