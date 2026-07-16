@@ -825,7 +825,9 @@ def find_most_recent_steamdir(loginvdf_paths):
     """
     Find Steam directory with most recently updated loginusers.vdf.
 
-    Returns Steam directory path or None if no valid paths found.
+    loginvdf_paths: loginusers.vdf paths
+
+    Returns Steam directory path or None if no valid path is found.
     """
     timestamps = get_mtime(loginvdf_paths)
     if not timestamps:
@@ -877,7 +879,7 @@ def wait_for_steam(use_proton, loginvdf_paths, wine=None, env=None):
         loginvdfs_checked += loginvdf_paths
     if not check_steam_process(use_proton=use_proton, wine=wine, env=env):
         loginvdfs_timestamps = get_mtime(loginvdfs_checked)
-        logging.debug("Starting Steam...")
+        logging.info("Starting Steam...")
         if use_proton:
             subproc.Popen(
                 ("nohup", "steam"), stdout=subproc.DEVNULL, stderr=subproc.STDOUT)

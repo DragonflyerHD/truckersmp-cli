@@ -37,7 +37,7 @@ class SteamCMD:
         """
         self._lib_backup = None
         self._backup_restored = False
-        self._decoder = codecs.getincrementaldecoder('utf-8')(errors='ignore')
+        self._decoder = codecs.getincrementaldecoder("utf-8")(errors="ignore")
         self._search_buffer = ""
         self._path = path
         self._wine = wine
@@ -151,7 +151,7 @@ class SteamCMD:
         bak = f"{lib}.truckersmp-cli.bak"
         try:
             shutil.copy2(lib, bak)
-            logging.debug("Backed up %s -> %s", lib, bak)
+            logging.info("Backed up %s -> %s", lib, bak)
             self._lib_backup = (lib, bak)
         except OSError as ex:
             logging.warning("Failed to back up %s: %s", lib, ex)
@@ -165,7 +165,7 @@ class SteamCMD:
         lib, bak = self._lib_backup
         try:
             shutil.copy2(bak, lib)
-            logging.debug("Restored %s from %s", lib, bak)
+            logging.info("Restored %s from %s", lib, bak)
         except OSError as ex:
             logging.warning("Failed to restore %s from %s: %s", lib, bak, ex)
 
@@ -173,16 +173,26 @@ class SteamCMD:
             os.remove(bak)
         except OSError:
             pass
+        else:
+            logging.info("Removed %s", bak)
 
     def _try_restore_on_login(self, line):
-        """Check for login pattern in line and restore backup if found."""
+        """
+        Check for login pattern in line and restore backup if found.
+
+        line: A line from the output of SteamCMD
+        """
         if not self._backup_restored and self._LOGIN_PATTERN in line:
             logging.debug("Found login pattern, restoring steamlibvdf")
             self._restore_lib_backup()
             self._backup_restored = True
 
     def _run_interactive(self, cmdline):
-        """Run SteamCMD interactively with PTY for immediate I/O."""
+        """
+        Run SteamCMD interactively with PTY for immediate I/O.
+
+        cmdline: SteamCMD arguments (list)
+        """
         self._search_buffer = ""
         max_pattern_len = len(self._LOGIN_PATTERN)
 
