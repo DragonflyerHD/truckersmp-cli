@@ -825,9 +825,9 @@ def find_most_recent_steamdir(loginvdf_paths):
     """
     Find Steam directory with most recently updated loginusers.vdf.
 
-    loginvdf_paths: loginusers.vdf paths
-
     Returns Steam directory path or None if no valid path is found.
+
+    loginvdf_paths: loginusers.vdf paths
     """
     timestamps = get_mtime(loginvdf_paths)
     if not timestamps:
