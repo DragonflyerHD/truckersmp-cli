@@ -271,6 +271,7 @@ Key-Value-Pair|Description
 `disable-proton-overlay = [boolean]`|Disable Steam Overlay when using Proton<br><br>Default: `no`
 `log-file = [path]`|Write log into the specified file, `-vv` option is recommended<br><br>Default: Empty string (only stderr)<br>Note: Messages from Steam/SteamCMD won't be written, only from this script (Game logs are written into `My Documents/{ETS2,ATS}MP/logs/client_*.log`)
 `truckersmp-directory = [path]`|Choose a different directory for the mod files<br><br>Default: `$XDG_DATA_HOME/truckersmp-cli/TruckersMP`
+`do-not-backup-libraryfolders-vdf = [boolean]`|Don't back up the Steam library folders file before logging in with SteamCMD<br>See [pull request #377][github:pr377] for details.
 
 ### Sections for third party programs
 
