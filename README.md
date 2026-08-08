@@ -110,6 +110,7 @@ Short option|Long option|Description
 (Not available)|`--wine-desktop SIZE`|Use Wine desktop, work around resolution issue, mouse clicking won't work in other GUI apps while the game is running, SIZE must be 'WIDTHxHEIGHT' format (e.g. 1920x1080)
 (Not available)|`--wine-steam-dir`|Choose a directory for Windows version of Steam<br><br>Default: `C:\Program Files (x86)\Steam` in the prefix
 (Not available)|`--without-wine-discord-ipc-bridge`|Don't use wine-discord-ipc-bridge for Discord Rich Presence
+(Not available)|`--do-not-backup-libraryfolders-vdf`|Don't back up the Steam library folders file before logging in with SteamCMD (see [pull request #377][github:pr377] for details)
 (Not available)|`--version`|Print version information and quit
 
 ## Build
@@ -270,6 +271,7 @@ Key-Value-Pair|Description
 `disable-proton-overlay = [boolean]`|Disable Steam Overlay when using Proton<br><br>Default: `no`
 `log-file = [path]`|Write log into the specified file, `-vv` option is recommended<br><br>Default: Empty string (only stderr)<br>Note: Messages from Steam/SteamCMD won't be written, only from this script (Game logs are written into `My Documents/{ETS2,ATS}MP/logs/client_*.log`)
 `truckersmp-directory = [path]`|Choose a different directory for the mod files<br><br>Default: `$XDG_DATA_HOME/truckersmp-cli/TruckersMP`
+`do-not-backup-libraryfolders-vdf = [boolean]`|Don't back up the Steam library folders file before logging in with SteamCMD<br>See [pull request #377][github:pr377] for details.
 
 ### Sections for third party programs
 
@@ -401,6 +403,7 @@ and TheUnknownNO's unofficial [TruckersMP-Launcher][github:truckersmp-launcher].
 [github:issue147]: https://github.com/truckersmp-cli/truckersmp-cli/issues/147
 [github:issue248]: https://github.com/truckersmp-cli/truckersmp-cli/issues/248
 [github:issue253]: https://github.com/truckersmp-cli/truckersmp-cli/issues/253
+[github:pr377]: https://github.com/truckersmp-cli/truckersmp-cli/pull/377
 [github:kakurasan]: https://github.com/kakurasan
 [github:Lucki]: https://github.com/Lucki
 [github:proton]: https://github.com/ValveSoftware/Proton
